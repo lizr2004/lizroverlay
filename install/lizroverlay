@@ -2,6 +2,7 @@
 
 build() {
     add_module "overlay"
+    add_module "btrfs"
     
     add_runscript
 }
