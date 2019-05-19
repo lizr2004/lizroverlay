@@ -26,6 +26,7 @@ lizroverlay_mount_handler()
             mount $lizroverlay_upper /run/lizroverlay/upper
         fi
     elif [[ -n "$lizroverlay_tmpsize" ]]
+    then
         mount -t tmpfs -o size=$lizroverlay_tmpsize /run/lizroverlay/upper
     else
         mount -t tmpfs -o size=262144k /run/lizroverlay/upper
