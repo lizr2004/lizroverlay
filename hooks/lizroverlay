@@ -1,0 +1,48 @@
+# args: /path/to/newroot
+lizroverlay_mount_handler()
+{
+    local newroot="$1"
+    
+    mkdir -p /run/lizroverlay/upper
+    mkdir -p /run/lizroverlay/lower
+
+    if [[ -n "$lizroverlay_lower_options" ]]
+    then
+        echo "mount -o $lizroverlay_lower_options $lizroverlay_lower /run/lizroverlay/lower"
+        mount -o $lizroverlay_lower_options $lizroverlay_lower /run/lizroverlay/lower
+    else
+        echo "mount $lizroverlay_lower /run/lizroverlay/lower"
+        mount $lizroverlay_lower /run/lizroverlay/lower
+    fi
+
+    if [[ -n "$lizroverlay_upper" ]]
+    then
+        if [[ -n "$lizroverlay_upper_options" ]] 
+        then
+            echo "ount -o $lizroverlay_upper_options $lizroverlay_upper /run/lizroverlay/upper"
+            mount -o $lizroverlay_upper_options $lizroverlay_upper /run/lizroverlay/upper
+        else
+            echo "mount $lizroverlay_upper /run/lizroverlay/upper"
+            mount $lizroverlay_upper /run/lizroverlay/upper
+        fi
+    elif [[ -n "$lizroverlay_tmpsize" ]]
+        mount -t tmpfs -o size=$lizroverlay_tmpsize /run/lizroverlay/upper
+    else
+        mount -t tmpfs -o size=262144k /run/lizroverlay/upper
+    fi
+
+    [[ -d "/run/lizroverlay/upper/lizroverlay/workdir" ]] || mkdir -p /run/lizroverlay/upper/lizroverlay/workdir
+    [[ -d "/run/lizroverlay/upper/lizroverlay/upperdir" ]] || mkdir -p /run/lizroverlay/upper/lizroverlay/upperdir
+
+    mount -t overlay -o "upperdir=/run/lizroverlay/upper/lizroverlay/upperdir,workdir=/run/lizroverlay/upper/lizroverlay/workdir,lowerdir=/run/lizroverlay/lower" lizroverlay $newroot
+}
+
+run_hook()
+{
+    if [[ -n "${lizroverlay_lower}" ]]
+    then
+        mount_handler="lizroverlay_mount_handler"
+    fi
+}
+
+# vim: ft=sh ts=4 sw=4 et:
